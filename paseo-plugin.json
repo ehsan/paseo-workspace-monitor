@@ -1,0 +1,9 @@
+{
+  "id": "workspace-drawer",
+  "name": "Workspace drawer",
+  "description": "Monitor agents and terminal output from another workspace in the right Explorer drawer.",
+  "build": [["npm", "ci", "--omit=dev", "--ignore-scripts"]],
+  "requirements": {
+    "paseo": ">=0.11.1"
+  }
+}
