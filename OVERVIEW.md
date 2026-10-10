@@ -12,7 +12,7 @@ On desktop/browser, working rings and visible label badges borrow their colors f
 
 Pinned is collapsible and its rows show the project initial icon from the visible native sidebar. Associated PRs show their number, merged/closed state, and passed/failed/running check summary when the workspace supplies it. Working badges use Paseo's dot, faint track, rotating quarter-arc, and 900 ms period.
 
-The picker matches the native sidebar's row spacing, typography, surface color, and project icons where available. Agent tabs, active activity summaries, and pending checks share the animated working ring. User messages use right-aligned rounded bubbles without author/time headers; assistant replies and collapsible activity summaries sit directly on the chat surface.
+The picker matches the native sidebar's row spacing, typography, surface color, and project icons where available. Agent tabs and active activity summaries share the animated working ring. Running CI uses a non-animated warning-colored pie, filled in quarter steps as individual checks finish; any failed check takes precedence over progress. Summary-only pending checks show an empty outline. User messages use right-aligned rounded bubbles without author/time headers; assistant replies and collapsible activity summaries sit directly on the chat surface.
 
 Picker titles are 14 px with a 20 px line height; metadata and section labels are 12 px. Workspace rows are 36 px without metadata and 52 px with metadata, separated by 2 px. Project headers are 40 px with a 4 px gap below; expanded groups add 12 px below their list. Labels share the metadata line and use 6 px horizontal padding with a leading optical offset.
 

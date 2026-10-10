@@ -32,6 +32,17 @@ type PickerProps = {
 };
 
 
+function CheckProgress({ quarters, color }: { quarters: number; color: string }) {
+  return <View accessibilityLabel={`CI progress ${quarters * 25}%`} style={{ width: 12, height: 12, borderRadius: 6, borderWidth: 1, borderColor: color, alignItems: "center", justifyContent: "center" }}>
+    <View style={{ width: 7, height: 7, borderRadius: 3.5, overflow: "hidden" }}>
+      {quarters > 0 && <View style={{ position: "absolute", top: 0, right: 0, width: 3.5, height: 3.5, backgroundColor: color }} />}
+      {quarters > 1 && <View style={{ position: "absolute", bottom: 0, right: 0, width: 3.5, height: 3.5, backgroundColor: color }} />}
+      {quarters > 2 && <View style={{ position: "absolute", bottom: 0, left: 0, width: 3.5, height: 3.5, backgroundColor: color }} />}
+      {quarters > 3 && <View style={{ position: "absolute", top: 0, left: 0, width: 3.5, height: 3.5, backgroundColor: color }} />}
+    </View>
+  </View>;
+}
+
 function WorkspaceRow({ workspace, theme, appearance, selected, current, pinned, onSelect }: {
   workspace: Workspace; theme: PluginTheme; appearance: SidebarAppearance; selected: boolean; current: boolean; pinned?: boolean; onSelect(workspaceId: string): void;
 }) {
@@ -41,8 +52,13 @@ function WorkspaceRow({ workspace, theme, appearance, selected, current, pinned,
   const pr = workspace.githubRuntime?.pullRequest;
   const prNumber = pr?.url.match(/\/(?:pull|pulls|merge_requests)\/(\d+)/)?.[1];
   const prState = pr?.isMerged || pr?.state === "merged" ? "Merged" : pr?.state === "open" ? "" : "Closed";
-  const checks = pr?.checksStatus === "success" ? "passed" : pr?.checksStatus === "failure" ? "failed" : pr?.checksStatus === "pending" ? "running" : null;
-  const checkColor = checks === "passed" ? colors.statusSuccess : checks === "failed" ? colors.statusDanger : colors.foregroundMuted;
+  const individualChecks = pr?.checks;
+  const completed = individualChecks?.filter((check) => check.status !== "pending").length ?? 0;
+  const checks = individualChecks?.length
+    ? individualChecks.some((check) => check.status === "failure") ? "failed" : completed === individualChecks.length ? "passed" : "running"
+    : pr?.checksStatus === "success" ? "passed" : pr?.checksStatus === "failure" ? "failed" : pr?.checksStatus === "pending" ? "running" : null;
+  const quarters = individualChecks?.length ? Math.floor(completed / individualChecks.length * 4) : 0;
+  const checkColor = checks === "passed" ? colors.statusSuccess : checks === "failed" ? colors.statusDanger : colors.statusWarning;
   return <Pressable accessibilityRole="button" accessibilityLabel={current ? `Current workspace ${workspace.name}` : `Load workspace ${workspace.name} into monitor`} accessibilityState={{ selected: selected || current, disabled: current }} disabled={current}
     onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)} onPress={() => { if (!current) onSelect(workspace.id); }}
     style={({ pressed }) => ({ minHeight: 36, marginBottom: 2, paddingVertical: 8, paddingLeft: 8, paddingRight: 12, borderRadius: 8, backgroundColor: selected || current || pressed ? colors.surface2 : hovered ? colors.surface1 : appearance.background ?? colors.surface0, flexDirection: "row", alignItems: "flex-start", gap: 8 })}>
@@ -68,7 +84,7 @@ function WorkspaceRow({ workspace, theme, appearance, selected, current, pinned,
           {checks && <>
             <Text style={{ color: colors.foregroundMuted, fontSize: 12, lineHeight: 16 }}>·</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-              {checks === "running" ? <WorkingIndicator color={checkColor} /> : <Icon name={checks === "passed" ? "CircleCheck" : "CircleX"} size={12} color={checkColor} />}
+              {checks === "running" ? <CheckProgress quarters={quarters} color={checkColor} /> : <Icon name={checks === "passed" ? "CircleCheck" : "CircleX"} size={12} color={checkColor} />}
               <Text style={{ color: checkColor, fontSize: 12, lineHeight: 16 }}>{checks}</Text>
             </View>
           </>}
